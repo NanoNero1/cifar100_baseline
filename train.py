@@ -47,6 +47,10 @@ def train(epoch):
         outputs = net(images)
         loss = loss_function(outputs, labels)
         loss.backward()
+
+        if optimizer.methodName == "ihtAGD":
+                optimizer.currentDataBatch = (images.clone(),labels.clone())
+
         optimizer.step()
 
         n_iter = (epoch - 1) * len(cifar100_training_loader) + batch_index + 1
