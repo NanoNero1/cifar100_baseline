@@ -162,7 +162,7 @@ if __name__ == '__main__':
     ## SGD
     optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
     setattr(optimizer, 'methodName', 'SGD')
-    setattr(optimizer, 'iteration', '0')
+    setattr(optimizer, 'iteration', 0)
     
     ## IHT-SGD
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
