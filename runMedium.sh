@@ -14,4 +14,4 @@ module load python/anaconda3
 eval "$(conda shell.bash hook)"  
 conda activate redenv 
 ##python cluster_iht_agd.py
-python train.py -net resnet50 -gpu -warm 1
+python train.py -net wideresnet -gpu -warm 1
