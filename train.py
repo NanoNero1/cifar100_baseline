@@ -25,6 +25,7 @@ from torch.utils.data import DataLoader
 # Dimitri Imports
 from IHT_OPT.ihtSGD import ihtSGD
 from IHT_OPT.ihtAGD import ihtAGD
+import time
 
 from conf import settings
 from utils import get_network, get_training_dataloader, get_test_dataloader, WarmUpLR, \
@@ -43,15 +44,34 @@ def train(epoch):
             labels = labels.cuda()
             images = images.cuda()
 
+        timeDelta = time.time()
+
         optimizer.zero_grad()
         outputs = net(images)
         loss = loss_function(outputs, labels)
         loss.backward()
 
+        newTime = time.time()
+
+        print(f"initial loss {newTime - timeDelta}")
+        timeDelta = newTime
+
+
         if optimizer.methodName == "iht_AGD":
                 optimizer.currentDataBatch = (images.clone(),labels.clone())
 
+        newTime = time.time()
+
+        print(f"put data batch {newTime - timeDelta}")
+        timeDelta = newTime
+
+
         optimizer.step()
+
+        newTime = time.time()
+
+        print(f"optimizer step {newTime - timeDelta}")
+        timeDelta = newTime
 
         n_iter = (epoch - 1) * len(cifar100_training_loader) + batch_index + 1
 
