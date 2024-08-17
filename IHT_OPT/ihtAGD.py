@@ -14,6 +14,9 @@ class ihtAGD(vanillaAGD,ihtSGD):
     self.alpha = self.beta / self.kappa
 
   def step(self):
+
+    torch.cuda.empty_cache()
+
     #self.trackingSparsity()
     #print(f"speed iteration {self.iteration}")
 
