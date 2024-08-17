@@ -48,7 +48,7 @@ def train(epoch):
         loss = loss_function(outputs, labels)
         loss.backward()
 
-        if optimizer.methodName == "ihtAGD":
+        if optimizer.methodName == "iht_AGD":
                 optimizer.currentDataBatch = (images.clone(),labels.clone())
 
         optimizer.step()
