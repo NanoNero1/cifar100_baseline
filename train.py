@@ -22,11 +22,17 @@ import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 #from torch.utils.tensorboard import SummaryWriter
 
+# Dimitri Imports
+from IHT_OPT.ihtSGD import ihtSGD
+
 from conf import settings
 from utils import get_network, get_training_dataloader, get_test_dataloader, WarmUpLR, \
     most_recent_folder, most_recent_weights, last_epoch, best_acc_weights
 
 def train(epoch):
+
+    optimizer.iteration += 1
+    print(f"the optimizer iteraaaaation {optimizer.iteration}")
 
     start = time.time()
     net.train()
@@ -147,7 +153,10 @@ if __name__ == '__main__':
     )
 
     loss_function = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
+    #optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    optimizer = optimizer = ihtSGD(
+      net.parameters(), beta=0.1,device=device,model=net)
     train_scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=settings.MILESTONES, gamma=0.2) #learning rate decay
     iter_per_epoch = len(cifar100_training_loader)
     warmup_scheduler = WarmUpLR(optimizer, iter_per_epoch * args.warm)
@@ -204,6 +213,9 @@ if __name__ == '__main__':
     for epoch in range(1, settings.EPOCH + 1):
         if epoch > args.warm:
             train_scheduler.step(epoch)
+
+        if epoch in [60,120,160]:
+            optimizer.beta *= 5.0
 
         if args.resume:
             if epoch <= resume_epoch:
