@@ -24,6 +24,7 @@ from torch.utils.data import DataLoader
 
 # Dimitri Imports
 from IHT_OPT.ihtSGD import ihtSGD
+from IHT_OPT.ihtAGD import ihtAGD
 
 from conf import settings
 from utils import get_network, get_training_dataloader, get_test_dataloader, WarmUpLR, \
@@ -155,8 +156,10 @@ if __name__ == '__main__':
     loss_function = nn.CrossEntropyLoss()
     #optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    optimizer = optimizer = ihtSGD(
-      net.parameters(), beta=10.0,sparsity=0.90,device=device,model=net)
+    #optimizer = ihtSGD(net.parameters(), beta=10.0,sparsity=0.90,device=device,model=net)
+    
+    optimizer = ihtAGD(net.parameters(), beta=10.0,kappa=10.0,sparsity=0.90,device=device,model=net)
+
     train_scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=settings.MILESTONES, gamma=0.2) #learning rate decay
     iter_per_epoch = len(cifar100_training_loader)
     warmup_scheduler = WarmUpLR(optimizer, iter_per_epoch * args.warm)

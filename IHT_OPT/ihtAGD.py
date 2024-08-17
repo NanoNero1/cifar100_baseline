@@ -14,7 +14,7 @@ class ihtAGD(vanillaAGD,ihtSGD):
     self.alpha = self.beta / self.kappa
 
   def step(self):
-    self.trackingSparsity()
+    #self.trackingSparsity()
     #print(f"speed iteration {self.iteration}")
 
     # Sloppy but works
@@ -27,7 +27,7 @@ class ihtAGD(vanillaAGD,ihtSGD):
 
     self.compressOrDecompress()
     #self.trackMatchingMasks(self)
-    self.iteration += 1
+    #self.iteration += 1
 
   #def returnSparse(self):
 
