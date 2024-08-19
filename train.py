@@ -180,14 +180,14 @@ if __name__ == '__main__':
     loss_function = nn.CrossEntropyLoss()
 
     ## SGD
-    optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
-    setattr(optimizer, 'methodName', 'SGD')
-    setattr(optimizer, 'iteration', 0)
-    setattr(optimizer, 'beta', 1.0)
+    # optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
+    # setattr(optimizer, 'methodName', 'SGD')
+    # setattr(optimizer, 'iteration', 0)
+    # setattr(optimizer, 'beta', 1.0)
     
     ## IHT-SGD
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    #optimizer = ihtSGD(net.parameters(), beta=10.0,sparsity=0.90, momentum=0.9,device=device,model=net)
+    optimizer = ihtSGD(net.parameters(), beta=10.0,sparsity=0.90, momentum=0.9,device=device,model=net)
     
     ## IHT-AGD
     #optimizer = ihtAGD(net.parameters(), beta=10.0,kappa=100.0,sparsity=0.90,device=device,model=net)
