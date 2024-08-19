@@ -186,7 +186,7 @@ if __name__ == '__main__':
     # setattr(optimizer, 'beta', 1.0)
     
     ## IHT-SGD
-    #device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     #optimizer = ihtSGD(net.parameters(), beta=10.0,sparsity=0.90, momentum=0.9,device=device,model=net)
     
     ## IHT-AGD
