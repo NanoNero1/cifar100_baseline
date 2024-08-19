@@ -190,7 +190,7 @@ if __name__ == '__main__':
     #optimizer = ihtSGD(net.parameters(), beta=10.0,sparsity=0.95, momentum=0.9,device=device,model=net)
     
     ## IHT-AGD
-    optimizer = ihtAGD(net.parameters(), beta=10.0,kappa=10.0,sparsity=0.95,device=device,model=net)
+    optimizer = ihtAGD(net.parameters(), beta=10.0,kappa=10.0,sparsity=0.99,device=device,model=net)
 
     train_scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=settings.MILESTONES, gamma=0.2) #learning rate decay
     iter_per_epoch = len(cifar100_training_loader)
