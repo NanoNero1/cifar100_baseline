@@ -13,11 +13,10 @@ class ihtAGD(vanillaAGD,ihtSGD):
     self.methodName = "iht_AGD"
     self.alpha = self.beta / self.kappa
 
+    
+
   def step(self):
-
-    torch.cuda.empty_cache()
-
-    #self.trackingSparsity()
+    self.trackingSparsity()
     #print(f"speed iteration {self.iteration}")
 
     # Sloppy but works
