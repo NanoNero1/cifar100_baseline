@@ -12,18 +12,20 @@ class ihtSGD(vanillaSGD):
     self.sparsifyInterval = sparsifyInterval
 
     # Compression, Decompression and Freezing Variables
-    self.phaseLength = 20
+    self.phaseLength = 10
     self.compressionRatio = 0.5
     self.freezingRatio = 0.2
-    self.warmupLength = 40
-    self.startFineTune = 160
+    self.warmupLength = 6
+    self.startFineTune = 50
 
     self.areWeCompressed = False
+    self.notFrozenYet = True
 
     # State Initialization
     for p in self.paramsIter():
       state = self.state[p]
       state['xt_frozen'] = torch.ones_like(p)
+      state['xt_gradient'] = torch.zeros_like(p)
 
     self.methodName = "iht_SGD"
 
@@ -45,33 +47,46 @@ class ihtSGD(vanillaSGD):
     #self.logging()
     #self.easyPrintParams()
     self.compressOrDecompress()
+    
     #self.easyPrintParams()
     #self.iteration +=1
 
   ########################################################
 
   def compressOrDecompress(self):
-    howFarAlong = (self.iteration - self.warmupLength) % self.phaseLength
+    howFarAlong = ((self.iteration - self.warmupLength) % self.phaseLength) + 1
     print(f"HowFarAlong: {howFarAlong} / {self.phaseLength}")
     print(f"Iteration: {self.iteration}")
 
     if self.iteration < self.warmupLength:
       ## WARMUP -- PHASE 0
       self.warmup()
-    elif self.iteration == self.startFineTune:
-      self.truncateAndFreeze()
-    elif self.iteration > self.startFineTune:
-      self.compressedStep()
-      ## FINE-TUNE
-    elif howFarAlong == 0:
-      ## FREEZING WEIGHTS -- PHASE 1
-      self.truncateAndFreeze()
+      self.notFrozenYet = True
+
+    elif self.iteration >= self.startFineTune:
+
+      if self.notFrozenYet == True:
+        ## FREEZING WEIGHTS -- PHASE 1
+        self.truncateAndFreeze()
+        self.notFrozenYet = False
+      else:
+        self.compressedStep()
+        ## FINE-TUNE
     elif howFarAlong <= self.phaseLength * self.compressionRatio:
-      ## COMPRESSED -- PHASE 2
-      self.compressedStep()
+
+      # before it was frozen for an entire epoch
+      if self.notFrozenYet == True:
+        ## FREEZING WEIGHTS -- PHASE 1
+        self.truncateAndFreeze()
+        self.notFrozenYet = False
+      else:
+        ## COMPRESSED -- PHASE 2
+        self.compressedStep()
+
     elif howFarAlong > self.phaseLength * self.compressionRatio:
       ## DECOMPRESS -- PHASE 3
       self.decompressed()
+      self.notFrozenYet = True
     else:
       print("Error, iteration logic is incorrect")
 
@@ -79,23 +94,38 @@ class ihtSGD(vanillaSGD):
   def warmup(self):
     print('warmup')
     self.updateWeights()
+    self.copyGradient()
 
   def truncateAndFreeze(self):
     print('truncateAndFreeze')
     self.updateWeights()
+    self.copyGradient()
+
     self.sparsify()
     self.freeze()
 
   def compressedStep(self):
     print('compressed step')
     self.updateWeights()
+    self.copyGradient()
+
     self.refreeze()
 
   def decompressed(self):
     print('decompressed')
     self.updateWeights()
+    self.copyGradient()
 
   ### UTILITY FUNCTIONS ######################################################################################
+
+  def copyGradient(self):
+    #warmup
+    if True:
+      with torch.no_grad():
+        for p in self.paramsIter():
+          state = self.state[p]
+          state['xt_gradient'] = (p.grad).detach().clone()
+        
 
   def getCutOff(self,sparsity=None,iterate=None):
     if sparsity == None:
