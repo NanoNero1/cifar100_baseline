@@ -13,9 +13,12 @@ class ihtAGD(vanillaAGD,ihtSGD):
     self.methodName = "iht_AGD"
     self.alpha = self.beta / self.kappa
 
+    self.specificSteps = 0
+
     
 
   def step(self):
+    self.specificSteps += 1
     #self.trackingSparsity()
     #print(f"speed iteration {self.iteration}")
 
@@ -45,8 +48,10 @@ class ihtAGD(vanillaAGD,ihtSGD):
 
   # I checked this, it seems to work
   def truncateAndFreeze(self):
-    self.areWeCompressed = True
+    
     self.updateWeightsTwo()
+    self.areWeCompressed = True
+
     print('this should work')
     # define zt
 
@@ -54,13 +59,17 @@ class ihtAGD(vanillaAGD,ihtSGD):
 
     # Truncate xt
     self.sparsify()
+
+    ## OFF
     #self.sparsify(iterate='zt')
+
     self.copyXT()
 
 
     # Freeze xt
     self.freeze()
 
+    ## OFF
     # Freeze zt
     #self.freeze(iterate='zt')
 
@@ -84,8 +93,13 @@ class ihtAGD(vanillaAGD,ihtSGD):
 
         #Then sparsify z_t+
         ## NOTE to Dim: - you sparsify here
-        #if self.areWeCompressed:
-        #  self.sparsify(iterate='zt')
+        #or  self.iteration >= self.startFineTune + 1):
+        howFarAlong = ((self.iteration - self.warmupLength) % self.phaseLength) + 1
+        # if self.areWeCompressed and (howFarAlong == 1):
+        if self.iteration >= self.startFineTune:
+          self.refreeze(iterate='zt')
+        #   #pass
+
 
         # And then we do the actual update, NOTE: zt is actually z_t+ right now
         state['zt'] = (self.sqKappa / (self.sqKappa + 1.0) ) * state['zt'] + (1.0 / (self.sqKappa + 1.0)) * state['xt']
@@ -97,6 +111,8 @@ class ihtAGD(vanillaAGD,ihtSGD):
 
     # CAREFUL! this changes the parameters for the mode!
     self.getNewGrad('zt')
+    #if self.specificSteps > 8000 and self.specificSteps < 10000:  
+    #  self.clipGradients()
     ######### ALTERT ######## THERE SHOULD BE self.getNewGrad('zt') above!!!
 
     with torch.no_grad():
@@ -118,7 +134,22 @@ class ihtAGD(vanillaAGD,ihtSGD):
     print('compressed step')
     self.updateWeightsTwo()
     self.refreeze()
+
+    ## OFF
     #self.refreeze('zt')
+
+  def clipGradients(self,clipAmt=0.0001):
+    print("I AM CLIPPING!!!!!!")
+
+    #print(len(self.param_groups))
+    #print("these are the groups")
+    #abort()
+
+    #torch.nn.utils.clip_grad_norm_(self.param_groups[0]['params'],norm_type='inf', max_norm=clipAmt)
+    torch.nn.utils.clip_grad_value_(self.param_groups[0]['params'],clip_value=clipAmt)
+    #for i 
+    #torch.clamp(self.param_groups[0]['params'],min=-1.0*clipAmt,clipAmt=1.0)
+    pass
 
   def trackMatchingMasks(self):
     concatMatchMask = torch.zeros((1)).to(self.device)

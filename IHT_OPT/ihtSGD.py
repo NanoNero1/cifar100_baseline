@@ -12,6 +12,22 @@ class ihtSGD(vanillaSGD):
     self.sparsifyInterval = sparsifyInterval
 
     # Compression, Decompression and Freezing Variables
+
+    ## CIFAR10
+    # self.phaseLength = 10
+    # self.compressionRatio = 0.5
+    # self.freezingRatio = 0.2
+    # self.warmupLength = 6
+    # self.startFineTune = 50
+
+    ## MNIST
+    # self.phaseLength = 4
+    # self.compressionRatio = 0.5
+    # self.freezingRatio = 0.2
+    # self.warmupLength = 1
+    # self.startFineTune = 16
+
+    ## CIFAR100
     self.phaseLength = 20
     self.compressionRatio = 0.5
     self.freezingRatio = 0.2
@@ -20,6 +36,8 @@ class ihtSGD(vanillaSGD):
 
     self.areWeCompressed = False
     self.notFrozenYet = True
+
+    self.batchIndex = 0
 
     # State Initialization
     for p in self.paramsIter():
@@ -131,7 +149,7 @@ class ihtSGD(vanillaSGD):
     if sparsity == None:
       sparsity = self.sparsity
     if iterate == 'zt':
-      sparsity = 0.00
+      sparsity = 0.50
 
     concatWeights = torch.zeros((1)).to(self.device)
     for p in self.paramsIter():
@@ -161,7 +179,7 @@ class ihtSGD(vanillaSGD):
     for p in self.paramsIter():
       state = self.state[p]
       if iterate == None:
-        #print("!!!!!!!!!!! this should sparsify the params")
+        print("!!!!!!!!!!! this should sparsify the params")
         p.data[torch.abs(p) <= cutoff] = 0.0
       else:
         # NOTE: torch.abs(p) is wrong, maybe that's the bug
@@ -169,7 +187,7 @@ class ihtSGD(vanillaSGD):
   
   # NOTE: Refreeze is not only for the PARAMS!
   def refreeze(self,iterate=None):
-    print('remember we need to give an iterate for refreeeze')
+    #print('remember we need to give an iterate for refreeeze')
     for p in self.paramsIter():
       state = self.state[p]
       # TO-DO: make into modular string
@@ -177,7 +195,8 @@ class ihtSGD(vanillaSGD):
       if iterate == None:
         p.data *= state['xt_frozen']
       else:
-        state[iterate] *= state[f"{iterate}_frozen"]
+        #state[iterate] *= state[f"{iterate}_frozen"]
+        state[iterate] *= state['xt_frozen']
 
   def freeze(self,iterate=None):
     cutOff = self.getCutOff(iterate=iterate)
@@ -218,7 +237,7 @@ class ihtSGD(vanillaSGD):
 
       # Track the per-layer sparsity with size
       #self.run[f"trials/{self.trialNumber}/{self.setupID}/{layerName}"].append(layerSparsity)
-      self.run[f"trials/{self.methodName}/sparsities/{layerName}-{layerIdx}{"B" if len(layer.data.shape) < 2 else "L"}"].append(layerSparsity)
+      #self.run[f"trials/{self.methodName}/sparsities/{layerName}-{layerIdx}{"B" if len(layer.data.shape) < 2 else "L"}"].append(layerSparsity)
 
     # Removing the First Zero
     print('removed the first zero')

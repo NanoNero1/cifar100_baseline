@@ -116,6 +116,8 @@ def eval_training(epoch=0, tb=True):
 
     for (images, labels) in cifar100_test_loader:
 
+        optimizer.batchIndex += 1
+
         if args.gpu:
             images = images.cuda()
             labels = labels.cuda()
@@ -190,7 +192,7 @@ if __name__ == '__main__':
     #optimizer = ihtSGD(net.parameters(), beta=10.0,sparsity=0.95, momentum=0.9,device=device,model=net)
     
     ## IHT-AGD
-    optimizer = ihtAGD(net.parameters(), beta=10.0,kappa=10.0,sparsity=0.99,device=device,model=net)
+    optimizer = ihtAGD(net.parameters(), beta=10.0,kappa=30.0,sparsity=0.90,device=device,model=net)
 
     train_scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=settings.MILESTONES, gamma=0.2) #learning rate decay
     iter_per_epoch = len(cifar100_training_loader)
@@ -245,7 +247,11 @@ if __name__ == '__main__':
         resume_epoch = last_epoch(os.path.join(settings.CHECKPOINT_PATH, args.net, recent_folder))
 
 
+    setattr(optimizer, 'epoch_size', iter_per_epoch)
     for epoch in range(1, settings.EPOCH + 1):
+
+        optimizer.batchIndex = 0
+
         if epoch > args.warm:
             train_scheduler.step(epoch)
 
