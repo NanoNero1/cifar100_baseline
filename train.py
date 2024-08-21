@@ -166,7 +166,7 @@ if __name__ == '__main__':
     cifar100_training_loader = get_training_dataloader(
         settings.CIFAR100_TRAIN_MEAN,
         settings.CIFAR100_TRAIN_STD,
-        num_workers=4,
+        num_workers=8,
         batch_size=args.b,
         shuffle=True
     )
@@ -174,7 +174,7 @@ if __name__ == '__main__':
     cifar100_test_loader = get_test_dataloader(
         settings.CIFAR100_TRAIN_MEAN,
         settings.CIFAR100_TRAIN_STD,
-        num_workers=4,
+        num_workers=8,
         batch_size=args.b,
         shuffle=True
     )
@@ -189,10 +189,10 @@ if __name__ == '__main__':
     
     ## IHT-SGD
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    #optimizer = ihtSGD(net.parameters(), beta=10.0,sparsity=0.95, momentum=0.9,device=device,model=net)
+    optimizer = ihtSGD(net.parameters(), beta=10.0,sparsity=0.90, momentum=0.9,device=device,model=net)
     
     ## IHT-AGD
-    optimizer = ihtAGD(net.parameters(), beta=10.0,kappa=30.0,sparsity=0.95,device=device,model=net)
+    #optimizer = ihtAGD(net.parameters(), beta=10.0,kappa=30.0,sparsity=0.90,device=device,model=net)
 
     train_scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=settings.MILESTONES, gamma=0.2) #learning rate decay
     iter_per_epoch = len(cifar100_training_loader)
@@ -255,8 +255,8 @@ if __name__ == '__main__':
         if epoch > args.warm:
             train_scheduler.step(epoch)
 
-        if epoch in [60,120,160]:
-            optimizer.beta *= 5.0
+        if epoch in [75,115,155,170]:
+            optimizer.beta *= 10.0
 
         if args.resume:
             if epoch <= resume_epoch:
