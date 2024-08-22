@@ -194,6 +194,8 @@ if __name__ == '__main__':
     ## IHT-AGD
     #optimizer = ihtAGD(net.parameters(), beta=10.0,kappa=30.0,sparsity=0.90,device=device,model=net)
 
+
+    # 
     train_scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=settings.MILESTONES, gamma=0.2) #learning rate decay
     iter_per_epoch = len(cifar100_training_loader)
     warmup_scheduler = WarmUpLR(optimizer, iter_per_epoch * args.warm)
@@ -255,7 +257,7 @@ if __name__ == '__main__':
         if epoch > args.warm:
             train_scheduler.step(epoch)
 
-        if epoch in [75,115,155,170]:
+        if epoch in [75,115,155]:
             optimizer.beta *= 10.0
 
         if args.resume:
