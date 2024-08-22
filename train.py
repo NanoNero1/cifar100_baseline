@@ -154,7 +154,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-net', type=str, required=True, help='net type')
     parser.add_argument('-gpu', action='store_true', default=False, help='use gpu or not')
-    parser.add_argument('-b', type=int, default=128, help='batch size for dataloader')
+    parser.add_argument('-b', type=int, default=16, help='batch size for dataloader')
     parser.add_argument('-warm', type=int, default=1, help='warm up training phase')
     parser.add_argument('-lr', type=float, default=0.1, help='initial learning rate')
     parser.add_argument('-resume', action='store_true', default=False, help='resume training')
@@ -167,7 +167,7 @@ if __name__ == '__main__':
         settings.CIFAR100_TRAIN_MEAN,
         settings.CIFAR100_TRAIN_STD,
         num_workers=8,
-        batch_size=args.b,
+        batch_size=16,
         shuffle=True
     )
 
@@ -175,7 +175,7 @@ if __name__ == '__main__':
         settings.CIFAR100_TRAIN_MEAN,
         settings.CIFAR100_TRAIN_STD,
         num_workers=8,
-        batch_size=args.b,
+        batch_size=16,
         shuffle=True
     )
 
@@ -192,7 +192,7 @@ if __name__ == '__main__':
     #optimizer = ihtSGD(net.parameters(), beta=12.5,sparsity=0.90, momentum=0.9,device=device,model=net)
     
     ## IHT-AGD
-    optimizer = ihtAGD(net.parameters(), beta=12.5,kappa=30.0,sparsity=0.90,device=device,model=net)
+    optimizer = ihtAGD(net.parameters(), beta=12.5,kappa=3.0,sparsity=0.90,device=device,model=net)
 
 
     # 
