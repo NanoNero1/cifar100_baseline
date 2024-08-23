@@ -192,7 +192,7 @@ if __name__ == '__main__':
     #optimizer = ihtSGD(net.parameters(), beta=12.5,sparsity=0.90, momentum=0.9,device=device,model=net)
     
     ## IHT-AGD
-    optimizer = ihtAGD(net.parameters(), beta=12.5,kappa=3.0,sparsity=0.90,device=device,model=net)
+    optimizer = ihtAGD(net.parameters(), beta=12.5,kappa=2.0,sparsity=0.90,device=device,model=net)
 
 
     # 
