@@ -167,7 +167,7 @@ if __name__ == '__main__':
         settings.CIFAR100_TRAIN_MEAN,
         settings.CIFAR100_TRAIN_STD,
         num_workers=8,
-        batch_size=64,
+        batch_size=16,
         shuffle=True
     )
 
