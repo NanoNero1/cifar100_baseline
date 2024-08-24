@@ -167,7 +167,7 @@ if __name__ == '__main__':
         settings.CIFAR100_TRAIN_MEAN,
         settings.CIFAR100_TRAIN_STD,
         num_workers=8,
-        batch_size=8,
+        batch_size=16,
         shuffle=True
     )
 
@@ -175,7 +175,7 @@ if __name__ == '__main__':
         settings.CIFAR100_TRAIN_MEAN,
         settings.CIFAR100_TRAIN_STD,
         num_workers=8,
-        batch_size=8,
+        batch_size=16,
         shuffle=True
     )
 
@@ -192,7 +192,7 @@ if __name__ == '__main__':
     #optimizer = ihtSGD(net.parameters(), beta=12.5,sparsity=0.90, momentum=0.9,device=device,model=net)
     
     ## IHT-AGD
-    optimizer = ihtAGD(net.parameters(), beta=20.0,kappa=2.0,sparsity=0.95,device=device,model=net)
+    optimizer = ihtAGD(net.parameters(), beta=20.0,kappa=2.0,sparsity=0.90,device=device,model=net)
 
 
     # 
